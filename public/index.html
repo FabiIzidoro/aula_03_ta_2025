@@ -1,33 +1,25 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard em Tempo Real</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Quiz de Escudos</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-    <h1>Painel em Tempo Real</h1>
+    <h1>🏆 Quiz dos Escudos</h1>
 
-    <div id="container">
-        <div class="card">
-            <h2>Usuários Conectados</h2>
-            <p id="usersCount">0</p>
-        </div>
-
-        <div class="card">
-            <h2>Room Mais Popular</h2>
-            <p id="popularRoom">Nenhuma</p>
-        </div>
+    <div id="escudo-container">
+        <img id="escudo" width="200">
     </div>
 
-    <div class="card large">
-        <h2>Rooms Ativas</h2>
-        <ul id="roomList"></ul>
-    </div>
+    <input id="resposta" type="text" placeholder="Digite o nome do time">
+    <button id="btnEnviar">Enviar</button>
+
+    <h2>Ranking</h2>
+    <ul id="ranking"></ul>
 
     <script src="/socket.io/socket.io.js"></script>
-    <script src="dashboard.js"></script>
-
+    <script src="client.js"></script>
 </body>
 </html>
