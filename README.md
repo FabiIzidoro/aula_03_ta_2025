@@ -46,3 +46,41 @@ Este projeto consiste no desenvolvimento de um dashboard em tempo real utilizand
 
 ```bash
 npm install
+
+2️⃣ Inicie o servidor:
+
+npm start
+
+3️⃣ Acesse no navegador:
+
+http://localhost:3000
+
+
+📁 Estrutura do Projeto
+📁 projeto
+ ├── 📁 public
+ │     ├── index.html
+ │     ├── style.css
+ │     ├── script.js
+ ├── server.js
+ ├── package.json
+ └── README.md
+
+
+🔄 Funcionamento do Dashboard
+
+A cada 1 segundo, o servidor envia para todos os clientes:
+
+{
+  "totalUsers": 5,
+  "mostPopulatedRoom": "salaA",
+  "usersInMostPopulatedRoom": 3
+}
+
+
+E o frontend atualiza esses valores automaticamente na interface.
+
+👩‍💻 Desenvolvido por
+
+Fabiana
+Atividade Prática 03 – Tecnologias Aplicadas
