@@ -1,20 +1,33 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aula 03</title>
-    <style>
-        canvas {
-            background-color: #f0f0f0;
-            display: block;
-            margin: auto;
-        }
-    </style>
+    <title>Dashboard em Tempo Real</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <canvas id="gameCanvas" width="600" height="400"></canvas>
+
+    <h1>Painel em Tempo Real</h1>
+
+    <div id="container">
+        <div class="card">
+            <h2>Usuários Conectados</h2>
+            <p id="usersCount">0</p>
+        </div>
+
+        <div class="card">
+            <h2>Room Mais Popular</h2>
+            <p id="popularRoom">Nenhuma</p>
+        </div>
+    </div>
+
+    <div class="card large">
+        <h2>Rooms Ativas</h2>
+        <ul id="roomList"></ul>
+    </div>
+
     <script src="/socket.io/socket.io.js"></script>
-    <script src="client.js"></script>
+    <script src="dashboard.js"></script>
+
 </body>
 </html>

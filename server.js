@@ -1,3 +1,4 @@
+// server.js - Painel em tempo real com Socket.IO
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -6,60 +7,74 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-app.use(express.static("public"));
+const PORT = process.env.PORT || 3000;
 
-//Armazenar os jogadores
-let players = {};
+app.use(express.static(__dirname + '/public'));
 
-//Inicia o socket.io
+// quando quiser, podemos usar um Set para controlar sockets conectados
 io.on('connection', (socket) => {
-    console.log(`Novo jogador conectado: ${socket.id}`);
+  console.log('Novo cliente conectado:', socket.id);
 
-    //Criar o jogador na posição inicial
-    players[socket.id] = {
-        x: 50,
-        y: 50,
-        color: getRandomColor()
-    };
+  // cliente pede para entrar numa room
+  socket.on('joinRoom', (room) => {
+    // sair de outras rooms (exceto da "room pessoal" que é socket.id)
+    for (let r of socket.rooms) {
+      if (r !== socket.id) socket.leave(r);
+    }
+    if (room) {
+      socket.join(room);
+      console.log(`Socket ${socket.id} entrou na room ${room}`);
+    }
+  });
 
-    //Enviar para o novo usuário o estado atual do jogo
-    socket.emit('currentPlayers', players);
-
-    //Notificar aos outros jogadores a entrada de um novo jogador
-    socket.broadcast.emit('newPlayer', { id: socket.id, ...players[socket.id]});
-
-    //Movimento do jogador
-    socket.on('move', (direction) => {
-        const player = players[socket.id];
-        if(!player) return;
-
-        const speed = 5;
-        if (direction === 'left') player.x -= speed;
-        if (direction === 'right') player.x += speed;
-        if (direction === 'up') player.y -= speed;
-        if (direction === 'down') player.y += speed;
-
-        io.emit('playerMoved', { id: socket.id, x: player.x, y: player.y });
-    });
-
-    //Desconexão
-    socket.on('disconnect', () => {
-        console.log(`Jogador saiu: ${socket.id}`);
-        delete players[socket.id];
-        io.emit('playerDisconnected', socket.id);
-    });
-
+  socket.on('disconnect', (reason) => {
+    console.log('Cliente desconectado:', socket.id, 'motivo:', reason);
+  });
 });
 
-function getRandomColor(){
-    const letters = '0123456789ABCDEF';
-    let color = '#';
-    for (let i = 0; i < 6; i++){
-        color += letters[Math.floor(Math.random() * 16)];
+// função que calcula estatísticas de rooms e usuários
+function computeStats() {
+  const socketsMap = io.sockets.sockets; // Map id -> Socket
+  const rooms = io.sockets.adapter.rooms; // Map roomName -> Set(socketIds)
+
+  const roomCounts = {};
+  for (let [roomName, sids] of rooms) {
+    // ignorar rooms pessoais (cada socket possui uma room com o próprio id)
+    if (socketsMap.has(roomName)) continue;
+    roomCounts[roomName] = sids.size;
+  }
+
+  const totalUsers = socketsMap.size;
+
+  // encontrar room mais popular
+  let popularRoom = null;
+  let maxCount = 0;
+  for (let [r, c] of Object.entries(roomCounts)) {
+    if (c > maxCount) {
+      maxCount = c;
+      popularRoom = r;
     }
-    return color;
+  }
+
+  // montar ranking (ordenado desc)
+  const ranking = Object.entries(roomCounts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([room, count]) => ({ room, count }));
+
+  return {
+    totalUsers,
+    popularRoom,
+    maxCount,
+    ranking
+  };
 }
 
-server.listen(3000, () => {
-    console.log(`Servidor rodando em http://localhost:3000...`);
+// emitir estatísticas a cada 1 segundo
+setInterval(() => {
+  const stats = computeStats();
+  io.emit('dashboardStats', stats);
+}, 1000);
+
+server.listen(PORT, () => {
+  console.log(`Servidor rodando em http://localhost:${PORT}`);
 });
